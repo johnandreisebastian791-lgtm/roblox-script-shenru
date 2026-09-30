@@ -2,6 +2,17 @@
 -- dev: shenrukaidev • OWNER (verified)
 -- target: Delta Executor (Android)
 
+-- ======================================================
+-- CLEANUP PREVIOUS RUN
+-- ======================================================
+if getgenv then
+    local g = getgenv()
+    if g.MRTX_Cleanup then
+        pcall(g.MRTX_Cleanup)
+        g.MRTX_Cleanup = nil
+    end
+end
+
 local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
 local RunService = game:GetService("RunService")
@@ -10,17 +21,10 @@ local lp = Players.LocalPlayer
 
 print("[MRTX] booting...")
 
-local function get_parent()
-    if gethui then
-        local ok, h = pcall(gethui)
-        if ok and h then return h end
-    end
-    local ok, cg = pcall(function() return game:GetService("CoreGui") end)
-    if ok and cg then return cg end
-    return lp:WaitForChild("PlayerGui")
-end
-
-local parent = get_parent()
+-- ======================================================
+-- PARENT (PlayerGui direct — most compatible)
+-- ======================================================
+local parent = lp:WaitForChild("PlayerGui")
 local old = parent:FindFirstChild("MRTX_Shenru")
 if old then old:Destroy() end
 
@@ -37,20 +41,25 @@ gui.Name = "MRTX_Shenru"
 gui.ResetOnSpawn = false
 gui.IgnoreGuiInset = true
 gui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+gui.DisplayOrder = 999
+gui.Enabled = true
 gui.Parent = parent
+
+local cleanup_fns = {}
 
 -- ======================================================
 -- MAIN WINDOW
 -- ======================================================
 local main = Instance.new("Frame")
+main.Name = "Main"
 main.Size = UDim2.new(0, 260, 0, 330)
 main.Position = UDim2.new(0.5, -130, 0.5, -165)
 main.BackgroundColor3 = BG
 main.BorderSizePixel = 0
 main.Active = true
+main.Selectable = true
 main.ClipsDescendants = true
 main.Parent = gui
-
 Instance.new("UICorner", main).CornerRadius = UDim.new(0, 10)
 
 local mainStroke = Instance.new("UIStroke", main)
@@ -69,9 +78,12 @@ bgGrad.Color = ColorSequence.new({
 -- TITLE BAR
 -- ======================================================
 local titleBar = Instance.new("Frame")
+titleBar.Name = "TitleBar"
 titleBar.Size = UDim2.new(1, 0, 0, 34)
 titleBar.BackgroundColor3 = TITLE_BG
 titleBar.BorderSizePixel = 0
+titleBar.Active = true
+titleBar.Selectable = true
 titleBar.Parent = main
 Instance.new("UICorner", titleBar).CornerRadius = UDim.new(0, 10)
 
@@ -88,7 +100,6 @@ strip.Position = UDim2.new(0, 0, 1, -2)
 strip.BackgroundColor3 = ACCENT
 strip.BorderSizePixel = 0
 strip.Parent = titleBar
-
 local stripGrad = Instance.new("UIGradient", strip)
 stripGrad.Color = ColorSequence.new({
     ColorSequenceKeypoint.new(0, ACCENT),
@@ -115,13 +126,73 @@ minBtn.TextColor3 = Color3.fromRGB(210, 210, 230)
 minBtn.Font = Enum.Font.GothamBold
 minBtn.TextSize = 16
 minBtn.AutoButtonColor = false
+minBtn.Active = true
+minBtn.Selectable = true
 minBtn.Parent = titleBar
 Instance.new("UICorner", minBtn).CornerRadius = UDim.new(0, 6)
 
+print("[MRTX] window + titlebar built")
+
 -- ======================================================
--- SIDEBAR  (explicit positioning, no layouts)
+-- DRAG (set up NOW, before anything else can fail)
+-- ======================================================
+local dragging, dragStart, startPos, blockDrag = false, nil, nil, false
+
+local c1 = minBtn.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1
+    or input.UserInputType == Enum.UserInputType.Touch then
+        blockDrag = true
+    end
+end)
+
+local c2 = minBtn.InputEnded:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1
+    or input.UserInputType == Enum.UserInputType.Touch then
+        blockDrag = false
+    end
+end)
+
+local c3 = titleBar.InputBegan:Connect(function(input)
+    if blockDrag then return end
+    if input.UserInputType == Enum.UserInputType.MouseButton1
+    or input.UserInputType == Enum.UserInputType.Touch then
+        dragging = true
+        dragStart = input.Position
+        startPos = main.Position
+    end
+end)
+
+local c4 = titleBar.InputEnded:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1
+    or input.UserInputType == Enum.UserInputType.Touch then
+        dragging = false
+    end
+end)
+
+local c5 = UserInputService.InputChanged:Connect(function(input)
+    if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement
+    or input.UserInputType == Enum.UserInputType.Touch) then
+        local delta = input.Position - dragStart
+        main.Position = UDim2.new(
+            startPos.X.Scale, startPos.X.Offset + delta.X,
+            startPos.Y.Scale, startPos.Y.Offset + delta.Y
+        )
+    end
+end)
+
+table.insert(cleanup_fns, function() c1:Disconnect() end)
+table.insert(cleanup_fns, function() c2:Disconnect() end)
+table.insert(cleanup_fns, function() c3:Disconnect() end)
+table.insert(cleanup_fns, function() c4:Disconnect() end)
+table.insert(cleanup_fns, function() c5:Disconnect() end)
+
+print("[MRTX] drag wired")
+
+-- ======================================================
+-- SIDEBAR
 -- ======================================================
 local sidebar = Instance.new("Frame")
+sidebar.Name = "Sidebar"
 sidebar.Size = UDim2.new(0, 58, 1, -70)
 sidebar.Position = UDim2.new(0, 8, 0, 44)
 sidebar.BackgroundColor3 = Color3.fromRGB(18, 18, 24)
@@ -154,7 +225,7 @@ local function make_page(name)
     page.ScrollBarThickness = 2
     page.ScrollBarImageColor3 = ACCENT
     page.ScrollBarImageTransparency = 0.4
-    page.CanvasSize = UDim2.new(0, 0, 0, 0)
+    page.CanvasSize = UDim2.new(0, 0, 0, 300)
     page.Visible = false
     page.Parent = contentHost
 
@@ -171,42 +242,10 @@ local function make_page(name)
     return page
 end
 
-local function update_canvas(page)
-    task.defer(function()
-        local layout = page:FindFirstChildOfClass("UIListLayout")
-        if layout and page.Parent then
-            page.CanvasSize = UDim2.new(0, 0, 0, layout.AbsoluteContentSize.Y + 12)
-        end
-    end)
-end
-
 -- ======================================================
--- SECTION HEADER
--- ======================================================
-local function make_section(parent_page, title_text)
-    local row = Instance.new("Frame")
-    row.Size = UDim2.new(1, 0, 0, 16)
-    row.BackgroundTransparency = 1
-    row.Parent = parent_page
-
-    local lbl = Instance.new("TextLabel")
-    lbl.BackgroundTransparency = 1
-    lbl.Size = UDim2.new(1, 0, 1, 0)
-    lbl.Font = Enum.Font.GothamBold
-    lbl.Text = string.upper(tostring(title_text))
-    lbl.TextColor3 = Color3.fromRGB(130, 130, 160)
-    lbl.TextSize = 10
-    lbl.TextXAlignment = Enum.TextXAlignment.Left
-    lbl.Parent = row
-
-    return row
-end
-
--- ======================================================
--- TAB BUTTONS  (explicit position)
+-- TAB BUTTONS
 -- ======================================================
 local tabButtons = {}
-local tabBars = {}
 local activeTab = nil
 
 local function set_tab(name)
@@ -215,29 +254,16 @@ local function set_tab(name)
 
     for n, page in pairs(pages) do
         page.Visible = (n == name)
-        if n == name then update_canvas(page) end
     end
 
     for n, btn in pairs(tabButtons) do
         local isActive = (n == name)
-        pcall(function()
-            TweenService:Create(btn, TweenInfo.new(0.15), {
-                BackgroundColor3 = isActive and Color3.fromRGB(45, 32, 80)
-                    or Color3.fromRGB(26, 26, 34),
-            }):Play()
-            TweenService:Create(btn, TweenInfo.new(0.15), {
-                TextColor3 = isActive and Color3.fromRGB(240, 235, 255)
-                    or Color3.fromRGB(150, 150, 175),
-            }):Play()
-        end)
-        local bar = tabBars[n]
-        if bar then
-            pcall(function()
-                TweenService:Create(bar, TweenInfo.new(0.15), {
-                    BackgroundTransparency = isActive and 0 or 1,
-                }):Play()
-            end)
-        end
+        TweenService:Create(btn, TweenInfo.new(0.15), {
+            BackgroundColor3 = isActive and Color3.fromRGB(45, 32, 80)
+                or Color3.fromRGB(26, 26, 34),
+            TextColor3 = isActive and Color3.fromRGB(240, 235, 255)
+                or Color3.fromRGB(150, 150, 175),
+        }):Play()
     end
 end
 
@@ -252,23 +278,22 @@ local function make_tab_button(label, name, yPos)
     btn.Font = Enum.Font.GothamBold
     btn.TextSize = 12
     btn.AutoButtonColor = false
+    btn.Active = true
+    btn.Selectable = true
     btn.Parent = sidebar
     Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 6)
 
-    local bar = Instance.new("Frame")
-    bar.Size = UDim2.new(0, 3, 0, 20)
-    bar.Position = UDim2.new(0, 3, 0.5, -10)
-    bar.BackgroundColor3 = ACCENT
-    bar.BorderSizePixel = 0
-    bar.BackgroundTransparency = 1
-    bar.Parent = btn
-    Instance.new("UICorner", bar).CornerRadius = UDim.new(1, 0)
-
     btn.Activated:Connect(function() set_tab(name) end)
     tabButtons[name] = btn
-    tabBars[name] = bar
     return btn
 end
+
+make_tab_button("Main", "Main",   8)
+make_tab_button("Cmb",  "Combat", 48)
+make_tab_button("Vis",  "Visual", 88)
+make_tab_button("Msc",  "Misc",   128)
+
+print("[MRTX] tabs created")
 
 -- ======================================================
 -- STATE
@@ -295,6 +320,8 @@ local function make_toggle(parent_page, text, key, on_enable, on_disable)
     row.BackgroundColor3 = ROW_BG
     row.Text = ""
     row.AutoButtonColor = false
+    row.Active = true
+    row.Selectable = true
     row.Parent = parent_page
     Instance.new("UICorner", row).CornerRadius = UDim.new(0, 6)
 
@@ -371,7 +398,6 @@ local function make_toggle(parent_page, text, key, on_enable, on_disable)
         end
     end)
 
-    update_canvas(parent_page)
     return row
 end
 
@@ -420,6 +446,17 @@ local function make_slider(parent_page, text, minV, maxV, defaultV, on_change)
     valueLbl.TextXAlignment = Enum.TextXAlignment.Right
     valueLbl.Parent = row
 
+    -- invisible full-row hitbox for easier touch
+    local hitbox = Instance.new("TextButton")
+    hitbox.Size = UDim2.new(1, 0, 0, 24)
+    hitbox.Position = UDim2.new(0, 0, 1, -24)
+    hitbox.BackgroundTransparency = 1
+    hitbox.Text = ""
+    hitbox.AutoButtonColor = false
+    hitbox.Active = true
+    hitbox.Selectable = true
+    hitbox.Parent = row
+
     local track_ = Instance.new("Frame")
     track_.Size = UDim2.new(1, -24, 0, 6)
     track_.Position = UDim2.new(0, 12, 1, -18)
@@ -449,7 +486,6 @@ local function make_slider(parent_page, text, minV, maxV, defaultV, on_change)
     knob.BorderSizePixel = 0
     knob.Parent = track_
     Instance.new("UICorner", knob).CornerRadius = UDim.new(1, 0)
-
     local knobStroke = Instance.new("UIStroke", knob)
     knobStroke.Color = ACCENT
     knobStroke.Thickness = 1.5
@@ -469,7 +505,8 @@ local function make_slider(parent_page, text, minV, maxV, defaultV, on_change)
         if on_change then pcall(on_change, val) end
     end
 
-    track_.InputBegan:Connect(function(input)
+    -- use the invisible hitbox so thumb taps anywhere on the row
+    hitbox.InputBegan:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseButton1
         or input.UserInputType == Enum.UserInputType.Touch then
             dragging = true
@@ -491,12 +528,32 @@ local function make_slider(parent_page, text, minV, maxV, defaultV, on_change)
         end
     end)
 
-    update_canvas(parent_page)
     return row
 end
 
 -- ======================================================
--- BUILD PAGES + TABS
+-- SECTION HEADER
+-- ======================================================
+local function make_section(parent_page, title_text)
+    local row = Instance.new("Frame")
+    row.Size = UDim2.new(1, 0, 0, 16)
+    row.BackgroundTransparency = 1
+    row.Parent = parent_page
+
+    local lbl = Instance.new("TextLabel")
+    lbl.BackgroundTransparency = 1
+    lbl.Size = UDim2.new(1, 0, 1, 0)
+    lbl.Font = Enum.Font.GothamBold
+    lbl.Text = string.upper(tostring(title_text))
+    lbl.TextColor3 = Color3.fromRGB(130, 130, 160)
+    lbl.TextSize = 10
+    lbl.TextXAlignment = Enum.TextXAlignment.Left
+    lbl.Parent = row
+    return row
+end
+
+-- ======================================================
+-- BUILD PAGES
 -- ======================================================
 local pageMain   = make_page("Main")
 local pageCombat = make_page("Combat")
@@ -504,16 +561,10 @@ local pageVisual = make_page("Visual")
 local pageMisc   = make_page("Misc")
 print("[MRTX] pages created")
 
-make_tab_button("Main",   "Main",   8)
-make_tab_button("Cmb",    "Combat", 48)
-make_tab_button("Vis",    "Visual", 88)
-make_tab_button("Msc",    "Misc",   128)
-print("[MRTX] tab buttons created")
-
 -- ---------------- MAIN ----------------
-pcall(make_section, pageMain, "Movement")
+make_section(pageMain, "Movement")
 
-pcall(make_toggle, pageMain, "WalkSpeed", "walkspeed",
+make_toggle(pageMain, "WalkSpeed", "walkspeed",
     function()
         local c = lp.Character
         if c and c:FindFirstChildOfClass("Humanoid") then
@@ -527,7 +578,7 @@ pcall(make_toggle, pageMain, "WalkSpeed", "walkspeed",
         end
     end
 )
-pcall(make_slider, pageMain, "Speed Value", 16, 200, 32, function(v)
+make_slider(pageMain, "Speed Value", 16, 200, 32, function(v)
     values.walkspeed = v
     if state.walkspeed then
         local c = lp.Character
@@ -535,7 +586,7 @@ pcall(make_slider, pageMain, "Speed Value", 16, 200, 32, function(v)
     end
 end)
 
-pcall(make_toggle, pageMain, "JumpPower", "jumppower",
+make_toggle(pageMain, "JumpPower", "jumppower",
     function()
         local c = lp.Character
         if c and c:FindFirstChildOfClass("Humanoid") then
@@ -548,7 +599,7 @@ pcall(make_toggle, pageMain, "JumpPower", "jumppower",
         if c and c:FindFirstChildOfClass("Humanoid") then c.Humanoid.JumpPower = 50 end
     end
 )
-pcall(make_slider, pageMain, "Jump Value", 50, 300, 100, function(v)
+make_slider(pageMain, "Jump Value", 50, 300, 100, function(v)
     values.jumppower = v
     if state.jumppower then
         local c = lp.Character
@@ -558,9 +609,9 @@ end)
 print("[MRTX] Main page built")
 
 -- ---------------- COMBAT ----------------
-pcall(make_section, pageCombat, "Combat")
+make_section(pageCombat, "Combat")
 
-pcall(make_toggle, pageCombat, "Infinite Jump", "infinite_jump",
+make_toggle(pageCombat, "Infinite Jump", "infinite_jump",
     function()
         track("inf_jump", UserInputService.JumpRequest:Connect(function()
             local c = lp.Character
@@ -574,7 +625,6 @@ pcall(make_toggle, pageCombat, "Infinite Jump", "infinite_jump",
     end
 )
 
--- fly (R6 stance, no ground stick)
 local flyConn, flyVel, flyGyro
 
 local function fly_enable()
@@ -648,14 +698,14 @@ local function fly_disable()
     end
 end
 
-pcall(make_toggle, pageCombat, "Fly", "fly", fly_enable, fly_disable)
-pcall(make_slider, pageCombat, "Fly Speed", 20, 200, 60, function(v)
+make_toggle(pageCombat, "Fly", "fly", fly_enable, fly_disable)
+make_slider(pageCombat, "Fly Speed", 20, 200, 60, function(v)
     values.fly_speed = v
 end)
 print("[MRTX] Combat page built")
 
 -- ---------------- VISUAL ----------------
-pcall(make_section, pageVisual, "Visuals")
+make_section(pageVisual, "Visuals")
 
 local function apply_esp(plr)
     if plr == lp then return end
@@ -674,7 +724,7 @@ end
 
 local espConns = {}
 
-pcall(make_toggle, pageVisual, "ESP (Highlight)", "esp",
+make_toggle(pageVisual, "ESP (Highlight)", "esp",
     function()
         for _, plr in ipairs(Players:GetPlayers()) do apply_esp(plr) end
         table.insert(espConns, Players.PlayerAdded:Connect(function(plr)
@@ -698,11 +748,11 @@ pcall(make_toggle, pageVisual, "ESP (Highlight)", "esp",
 print("[MRTX] Visual page built")
 
 -- ---------------- MISC ----------------
-pcall(make_section, pageMisc, "Miscellaneous")
+make_section(pageMisc, "Miscellaneous")
 
 local noclipConn
 
-pcall(make_toggle, pageMisc, "Noclip", "noclip",
+make_toggle(pageMisc, "Noclip", "noclip",
     function()
         noclipConn = RunService.Stepped:Connect(function()
             if not state.noclip then return end
@@ -727,8 +777,7 @@ pcall(make_toggle, pageMisc, "Noclip", "noclip",
 )
 print("[MRTX] Misc page built")
 
--- activate Main
-pcall(set_tab, "Main")
+set_tab("Main")
 print("[MRTX] Main tab activated")
 
 -- ======================================================
@@ -759,14 +808,12 @@ badge.Size = UDim2.new(0, 13, 0, 13)
 badge.Position = UDim2.new(0, 0, 0.5, -6.5)
 badge.Parent = devRow
 Instance.new("UICorner", badge).CornerRadius = UDim.new(1, 0)
-
 local badgeGrad = Instance.new("UIGradient", badge)
 badgeGrad.Rotation = 90
 badgeGrad.Color = ColorSequence.new({
     ColorSequenceKeypoint.new(0, ACCENT2),
     ColorSequenceKeypoint.new(1, ACCENT),
 })
-
 local badgeStroke = Instance.new("UIStroke", badge)
 badgeStroke.Color = Color3.fromRGB(200, 220, 255)
 badgeStroke.Thickness = 1
@@ -810,46 +857,7 @@ end)
 print("[MRTX] dev credit built")
 
 -- ======================================================
--- DRAG
--- ======================================================
-local dragging, dragStart, startPos, blockDrag = false, nil, nil, false
-
-minBtn.InputBegan:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1
-    or input.UserInputType == Enum.UserInputType.Touch then blockDrag = true end
-end)
-minBtn.InputEnded:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1
-    or input.UserInputType == Enum.UserInputType.Touch then blockDrag = false end
-end)
-
-titleBar.InputBegan:Connect(function(input)
-    if blockDrag then return end
-    if input.UserInputType == Enum.UserInputType.MouseButton1
-    or input.UserInputType == Enum.UserInputType.Touch then
-        dragging = true
-        dragStart = input.Position
-        startPos = main.Position
-    end
-end)
-titleBar.InputEnded:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1
-    or input.UserInputType == Enum.UserInputType.Touch then dragging = false end
-end)
-
-UserInputService.InputChanged:Connect(function(input)
-    if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement
-    or input.UserInputType == Enum.UserInputType.Touch) then
-        local delta = input.Position - dragStart
-        main.Position = UDim2.new(
-            startPos.X.Scale, startPos.X.Offset + delta.X,
-            startPos.Y.Scale, startPos.Y.Offset + delta.Y
-        )
-    end
-end)
-
--- ======================================================
--- RESTORE ORB
+-- RESTORE ORB + MINIMIZE
 -- ======================================================
 local restore = Instance.new("TextButton")
 restore.Size = UDim2.new(0, 40, 0, 40)
@@ -860,6 +868,8 @@ restore.TextColor3 = Color3.fromRGB(220, 210, 255)
 restore.Font = Enum.Font.GothamBold
 restore.TextSize = 18
 restore.AutoButtonColor = false
+restore.Active = true
+restore.Selectable = true
 restore.Visible = false
 restore.Parent = gui
 Instance.new("UICorner", restore).CornerRadius = UDim.new(0, 20)
@@ -937,5 +947,13 @@ UserInputService.InputChanged:Connect(function(input)
         end
     end
 end)
+
+-- register cleanup so next run wipes this properly
+if getgenv then
+    getgenv().MRTX_Cleanup = function()
+        for _, fn in ipairs(cleanup_fns) do pcall(fn) end
+        if gui and gui.Parent then gui:Destroy() end
+    end
+end
 
 print("[MRTX] fully loaded ✓")
