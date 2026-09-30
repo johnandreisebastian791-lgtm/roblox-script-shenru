@@ -22,12 +22,13 @@ local parent = get_parent()
 local old = parent:FindFirstChild("MRTX_Shenru")
 if old then old:Destroy() end
 
-local ACCENT = Color3.fromRGB(140, 90, 240)
-local ACCENT2 = Color3.fromRGB(120, 200, 255)
-local BG = Color3.fromRGB(16, 16, 20)
-local BG2 = Color3.fromRGB(22, 22, 28)
-local TITLE_BG = Color3.fromRGB(24, 24, 32)
-local ROW_BG = Color3.fromRGB(26, 26, 34)
+local ACCENT   = Color3.fromRGB(140, 90, 240)
+local ACCENT2  = Color3.fromRGB(120, 200, 255)
+local BG       = Color3.fromRGB(14, 14, 18)
+local BG2      = Color3.fromRGB(20, 20, 26)
+local TITLE_BG = Color3.fromRGB(22, 22, 28)
+local ROW_BG   = Color3.fromRGB(24, 24, 30)
+local ROW_BG2  = Color3.fromRGB(20, 20, 26)
 
 local gui = Instance.new("ScreenGui")
 gui.Name = "MRTX_Shenru"
@@ -37,118 +38,119 @@ gui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 gui.Parent = parent
 
 -- ======================================================
--- MAIN WINDOW  (260 x 320)
+-- MAIN WINDOW  260 x 330
 -- ======================================================
 local main = Instance.new("Frame")
-main.Size = UDim2.new(0, 260, 0, 320)
-main.Position = UDim2.new(0.5, -130, 0.5, -160)
+main.Size = UDim2.new(0, 260, 0, 330)
+main.Position = UDim2.new(0.5, -130, 0.5, -165)
 main.BackgroundColor3 = BG
 main.BorderSizePixel = 0
 main.Active = true
 main.ClipsDescendants = true
 main.Parent = gui
 
-Instance.new("UICorner", main).CornerRadius = UDim.new(0, 8)
+Instance.new("UICorner", main).CornerRadius = UDim.new(0, 10)
 
 local mainStroke = Instance.new("UIStroke", main)
 mainStroke.Color = ACCENT
 mainStroke.Thickness = 1.2
-mainStroke.Transparency = 0.35
+mainStroke.Transparency = 0.4
 
 local bgGrad = Instance.new("UIGradient", main)
 bgGrad.Rotation = 90
 bgGrad.Color = ColorSequence.new({
     ColorSequenceKeypoint.new(0, BG2),
-    ColorSequenceKeypoint.new(1, Color3.fromRGB(12, 12, 16)),
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(10, 10, 14)),
 })
 
 -- ======================================================
 -- TITLE BAR
 -- ======================================================
 local titleBar = Instance.new("Frame")
-titleBar.Size = UDim2.new(1, 0, 0, 32)
+titleBar.Size = UDim2.new(1, 0, 0, 34)
 titleBar.BackgroundColor3 = TITLE_BG
 titleBar.BorderSizePixel = 0
 titleBar.Parent = main
 
-Instance.new("UICorner", titleBar).CornerRadius = UDim.new(0, 8)
+Instance.new("UICorner", titleBar).CornerRadius = UDim.new(0, 10)
 
 local titleCover = Instance.new("Frame")
-titleCover.Size = UDim2.new(1, 0, 0, 8)
-titleCover.Position = UDim2.new(0, 0, 1, -8)
+titleCover.Size = UDim2.new(1, 0, 0, 10)
+titleCover.Position = UDim2.new(0, 0, 1, -10)
 titleCover.BackgroundColor3 = TITLE_BG
 titleCover.BorderSizePixel = 0
 titleCover.Parent = titleBar
 
+-- thin gradient accent strip under titlebar
+local strip = Instance.new("Frame")
+strip.Size = UDim2.new(1, 0, 0, 2)
+strip.Position = UDim2.new(0, 0, 1, -2)
+strip.BackgroundColor3 = ACCENT
+strip.BorderSizePixel = 0
+strip.Parent = titleBar
+
+local stripGrad = Instance.new("UIGradient", strip)
+stripGrad.Color = ColorSequence.new({
+    ColorSequenceKeypoint.new(0, ACCENT),
+    ColorSequenceKeypoint.new(1, ACCENT2),
+})
+
 local brand = Instance.new("TextLabel")
 brand.BackgroundTransparency = 1
-brand.Position = UDim2.new(0, 10, 0, 0)
-brand.Size = UDim2.new(0, 180, 1, 0)
+brand.Position = UDim2.new(0, 12, 0, 0)
+brand.Size = UDim2.new(0, 200, 1, 0)
 brand.Font = Enum.Font.GothamBold
 brand.Text = "MRTX | Shenru"
-brand.TextColor3 = Color3.fromRGB(220, 210, 255)
+brand.TextColor3 = Color3.fromRGB(225, 218, 255)
 brand.TextSize = 13
 brand.TextXAlignment = Enum.TextXAlignment.Left
 brand.Parent = titleBar
 
--- small status dot
-local dot = Instance.new("Frame")
-dot.Size = UDim2.new(0, 6, 0, 6)
-dot.Position = UDim2.new(0, 184, 0.5, -3)
-dot.BackgroundColor3 = ACCENT2
-dot.BorderSizePixel = 0
-dot.Parent = titleBar
-Instance.new("UICorner", dot).CornerRadius = UDim.new(1, 0)
-
--- minimize
 local minBtn = Instance.new("TextButton")
 minBtn.Size = UDim2.new(0, 22, 0, 22)
 minBtn.Position = UDim2.new(1, -28, 0.5, -11)
-minBtn.BackgroundColor3 = Color3.fromRGB(32, 32, 42)
+minBtn.BackgroundColor3 = Color3.fromRGB(34, 34, 44)
 minBtn.Text = "–"
-minBtn.TextColor3 = Color3.fromRGB(200, 200, 220)
+minBtn.TextColor3 = Color3.fromRGB(210, 210, 230)
 minBtn.Font = Enum.Font.GothamBold
 minBtn.TextSize = 16
 minBtn.AutoButtonColor = false
 minBtn.Parent = titleBar
-Instance.new("UICorner", minBtn).CornerRadius = UDim.new(0, 5)
+Instance.new("UICorner", minBtn).CornerRadius = UDim.new(0, 6)
 
 -- ======================================================
--- TAB SIDEBAR
+-- SIDEBAR
 -- ======================================================
 local sidebar = Instance.new("Frame")
-sidebar.Name = "Sidebar"
-sidebar.Size = UDim2.new(0, 54, 1, -66)
-sidebar.Position = UDim2.new(0, 8, 0, 40)
-sidebar.BackgroundColor3 = Color3.fromRGB(20, 20, 26)
+sidebar.Size = UDim2.new(0, 56, 1, -70)
+sidebar.Position = UDim2.new(0, 8, 0, 44)
+sidebar.BackgroundColor3 = Color3.fromRGB(18, 18, 24)
 sidebar.BorderSizePixel = 0
 sidebar.Parent = main
-
-Instance.new("UICorner", sidebar).CornerRadius = UDim.new(0, 6)
+Instance.new("UICorner", sidebar).CornerRadius = UDim.new(0, 8)
 
 local sideStroke = Instance.new("UIStroke", sidebar)
-sideStroke.Color = Color3.fromRGB(60, 60, 85)
+sideStroke.Color = Color3.fromRGB(56, 56, 78)
 sideStroke.Thickness = 1
 sideStroke.Transparency = 0.5
 
 local sideLayout = Instance.new("UIListLayout")
-sideLayout.Padding = UDim.new(0, 4)
+sideLayout.Padding = UDim.new(0, 5)
 sideLayout.SortOrder = Enum.SortOrder.LayoutOrder
 sideLayout.Parent = sidebar
 
 local sidePad = Instance.new("UIPadding")
-sidePad.PaddingTop = UDim.new(0, 6)
-sidePad.PaddingLeft = UDim.new(0, 4)
-sidePad.PaddingRight = UDim.new(0, 4)
+sidePad.PaddingTop = UDim.new(0, 8)
+sidePad.PaddingLeft = UDim.new(0, 5)
+sidePad.PaddingRight = UDim.new(0, 5)
 sidePad.Parent = sidebar
 
 -- ======================================================
--- CONTENT (holds tab pages)
+-- CONTENT HOST
 -- ======================================================
 local contentHost = Instance.new("Frame")
-contentHost.Name = "ContentHost"
-contentHost.Size = UDim2.new(1, -70, 1, -66)
-contentHost.Position = UDim2.new(0, 62, 0, 40)
+contentHost.Size = UDim2.new(1, -72, 1, -70)
+contentHost.Position = UDim2.new(0, 64, 0, 44)
 contentHost.BackgroundTransparency = 1
 contentHost.Parent = main
 
@@ -162,6 +164,7 @@ local function make_page(name)
     page.BorderSizePixel = 0
     page.ScrollBarThickness = 2
     page.ScrollBarImageColor3 = ACCENT
+    page.ScrollBarImageTransparency = 0.4
     page.CanvasSize = UDim2.new(0, 0, 0, 0)
     page.AutomaticCanvasSize = Enum.AutomaticSize.Y
     page.Visible = false
@@ -173,11 +176,33 @@ local function make_page(name)
     layout.Parent = page
 
     local pad = Instance.new("UIPadding")
-    pad.PaddingBottom = UDim.new(0, 6)
+    pad.PaddingBottom = UDim.new(0, 8)
     pad.Parent = page
 
     pages[name] = page
     return page
+end
+
+-- ======================================================
+-- SECTION HEADER
+-- ======================================================
+local function make_section(parent, text)
+    local row = Instance.new("Frame")
+    row.Size = UDim2.new(1, 0, 0, 16)
+    row.BackgroundTransparency = 1
+    row.Parent = parent
+
+    local lbl = Instance.new("TextLabel")
+    lbl.BackgroundTransparency = 1
+    lbl.Size = UDim2.new(1, 0, 1, 0)
+    lbl.Font = Enum.Font.GothamBold
+    lbl.Text = string.upper(text)
+    lbl.TextColor3 = Color3.fromRGB(130, 130, 160)
+    lbl.TextSize = 10
+    lbl.TextXAlignment = Enum.TextXAlignment.Left
+    lbl.Parent = row
+
+    return row
 end
 
 -- ======================================================
@@ -190,66 +215,61 @@ local function set_tab(name)
     if activeTab == name then return end
     activeTab = name
 
-    for n, page in pairs(pages) do
-        page.Visible = (n == name)
-    end
+    for n, page in pairs(pages) do page.Visible = (n == name) end
 
     for n, btn in pairs(tabButtons) do
         local isActive = (n == name)
         TweenService:Create(btn, TweenInfo.new(0.15), {
-            BackgroundColor3 = isActive and ACCENT or Color3.fromRGB(28, 28, 36),
-            BackgroundTransparency = isActive and 0.15 or 0,
+            BackgroundColor3 = isActive and Color3.fromRGB(45, 32, 80) or Color3.fromRGB(26, 26, 34),
         }):Play()
         TweenService:Create(btn.TextLabel, TweenInfo.new(0.15), {
-            TextColor3 = isActive and Color3.fromRGB(255, 255, 255) or Color3.fromRGB(160, 160, 185),
+            TextColor3 = isActive and Color3.fromRGB(240, 235, 255) or Color3.fromRGB(150, 150, 175),
+        }):Play()
+        TweenService:Create(btn.bar, TweenInfo.new(0.15), {
+            BackgroundTransparency = isActive and 0 or 1,
         }):Play()
     end
 end
 
 local function make_tab_button(label, name)
     local btn = Instance.new("TextButton")
-    btn.Name = name
-    btn.Size = UDim2.new(1, 0, 0, 32)
-    btn.BackgroundColor3 = Color3.fromRGB(28, 28, 36)
+    btn.Size = UDim2.new(1, 0, 0, 34)
+    btn.BackgroundColor3 = Color3.fromRGB(26, 26, 34)
     btn.Text = label
-    btn.TextColor3 = Color3.fromRGB(160, 160, 185)
+    btn.TextColor3 = Color3.fromRGB(150, 150, 175)
     btn.Font = Enum.Font.GothamBold
     btn.TextSize = 12
     btn.AutoButtonColor = false
     btn.Parent = sidebar
+    Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 6)
 
-    Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 5)
-
-    local stroke = Instance.new("UIStroke", btn)
-    stroke.Color = Color3.fromRGB(60, 60, 85)
-    stroke.Thickness = 1
-    stroke.Transparency = 0.6
+    -- left accent bar (hidden by default)
+    local bar = Instance.new("Frame")
+    bar.Name = "bar"
+    bar.Size = UDim2.new(0, 3, 0, 20)
+    bar.Position = UDim2.new(0, 2, 0.5, -10)
+    bar.BackgroundColor3 = ACCENT
+    bar.BorderSizePixel = 0
+    bar.BackgroundTransparency = 1
+    bar.Parent = btn
+    Instance.new("UICorner", bar).CornerRadius = UDim.new(1, 0)
+    btn.bar = bar
 
     btn.Activated:Connect(function() set_tab(name) end)
-
     tabButtons[name] = btn
     return btn
 end
 
 -- ======================================================
--- FEATURE STATE
+-- STATE
 -- ======================================================
 local state = {
-    walkspeed = false,
-    jumppower = false,
-    infinite_jump = false,
-    esp = false,
-    fly = false,
-    noclip = false,
+    walkspeed = false, jumppower = false, infinite_jump = false,
+    esp = false, fly = false, noclip = false,
 }
-
 local conns = {}
 local highlights = {}
-local values = {
-    walkspeed = 32,
-    jumppower = 100,
-    fly_speed = 60,
-}
+local values = { walkspeed = 32, jumppower = 100, fly_speed = 60 }
 
 local function track(name, conn)
     if conns[name] then conns[name]:Disconnect() end
@@ -261,34 +281,40 @@ end
 -- ======================================================
 local function make_toggle(parent, text, key, on_enable, on_disable)
     local row = Instance.new("TextButton")
-    row.Size = UDim2.new(1, 0, 0, 32)
+    row.Size = UDim2.new(1, 0, 0, 34)
     row.BackgroundColor3 = ROW_BG
     row.Text = ""
     row.AutoButtonColor = false
     row.Parent = parent
-
     Instance.new("UICorner", row).CornerRadius = UDim.new(0, 6)
 
+    local rowGrad = Instance.new("UIGradient", row)
+    rowGrad.Rotation = 90
+    rowGrad.Color = ColorSequence.new({
+        ColorSequenceKeypoint.new(0, ROW_BG),
+        ColorSequenceKeypoint.new(1, ROW_BG2),
+    })
+
     local stroke = Instance.new("UIStroke", row)
-    stroke.Color = Color3.fromRGB(70, 70, 95)
+    stroke.Color = Color3.fromRGB(64, 64, 88)
     stroke.Thickness = 1
-    stroke.Transparency = 0.4
+    stroke.Transparency = 0.45
 
     local label = Instance.new("TextLabel")
     label.BackgroundTransparency = 1
-    label.Position = UDim2.new(0, 10, 0, 0)
-    label.Size = UDim2.new(1, -56, 1, 0)
+    label.Position = UDim2.new(0, 12, 0, 0)
+    label.Size = UDim2.new(1, -60, 1, 0)
     label.Font = Enum.Font.Gotham
     label.Text = text
-    label.TextColor3 = Color3.fromRGB(200, 195, 225)
+    label.TextColor3 = Color3.fromRGB(210, 205, 235)
     label.TextSize = 12
     label.TextXAlignment = Enum.TextXAlignment.Left
     label.Parent = row
 
     local pill = Instance.new("Frame")
-    pill.Size = UDim2.new(0, 34, 0, 18)
-    pill.Position = UDim2.new(1, -44, 0.5, -9)
-    pill.BackgroundColor3 = Color3.fromRGB(40, 40, 50)
+    pill.Size = UDim2.new(0, 36, 0, 18)
+    pill.Position = UDim2.new(1, -46, 0.5, -9)
+    pill.BackgroundColor3 = Color3.fromRGB(42, 42, 54)
     pill.BorderSizePixel = 0
     pill.Parent = row
     Instance.new("UICorner", pill).CornerRadius = UDim.new(1, 0)
@@ -296,7 +322,7 @@ local function make_toggle(parent, text, key, on_enable, on_disable)
     local knob = Instance.new("Frame")
     knob.Size = UDim2.new(0, 14, 0, 14)
     knob.Position = UDim2.new(0, 2, 0.5, -7)
-    knob.BackgroundColor3 = Color3.fromRGB(180, 180, 190)
+    knob.BackgroundColor3 = Color3.fromRGB(170, 170, 185)
     knob.BorderSizePixel = 0
     knob.Parent = pill
     Instance.new("UICorner", knob).CornerRadius = UDim.new(1, 0)
@@ -305,22 +331,22 @@ local function make_toggle(parent, text, key, on_enable, on_disable)
         if state[key] then
             stroke.Color = ACCENT
             stroke.Transparency = 0.1
-            TweenService:Create(pill, TweenInfo.new(0.15), {
+            TweenService:Create(pill, TweenInfo.new(0.16), {
                 BackgroundColor3 = Color3.fromRGB(90, 60, 170)
             }):Play()
-            TweenService:Create(knob, TweenInfo.new(0.15), {
+            TweenService:Create(knob, TweenInfo.new(0.16), {
                 Position = UDim2.new(1, -16, 0.5, -7),
-                BackgroundColor3 = Color3.fromRGB(220, 210, 255),
+                BackgroundColor3 = Color3.fromRGB(230, 220, 255),
             }):Play()
         else
-            stroke.Color = Color3.fromRGB(70, 70, 95)
-            stroke.Transparency = 0.4
-            TweenService:Create(pill, TweenInfo.new(0.15), {
-                BackgroundColor3 = Color3.fromRGB(40, 40, 50)
+            stroke.Color = Color3.fromRGB(64, 64, 88)
+            stroke.Transparency = 0.45
+            TweenService:Create(pill, TweenInfo.new(0.16), {
+                BackgroundColor3 = Color3.fromRGB(42, 42, 54)
             }):Play()
-            TweenService:Create(knob, TweenInfo.new(0.15), {
+            TweenService:Create(knob, TweenInfo.new(0.16), {
                 Position = UDim2.new(0, 2, 0.5, -7),
-                BackgroundColor3 = Color3.fromRGB(180, 180, 190),
+                BackgroundColor3 = Color3.fromRGB(170, 170, 185),
             }):Play()
         end
     end
@@ -343,32 +369,39 @@ end
 -- ======================================================
 local function make_slider(parent, text, minV, maxV, defaultV, on_change)
     local row = Instance.new("Frame")
-    row.Size = UDim2.new(1, 0, 0, 42)
+    row.Size = UDim2.new(1, 0, 0, 44)
     row.BackgroundColor3 = ROW_BG
     row.BorderSizePixel = 0
     row.Parent = parent
     Instance.new("UICorner", row).CornerRadius = UDim.new(0, 6)
 
+    local rowGrad = Instance.new("UIGradient", row)
+    rowGrad.Rotation = 90
+    rowGrad.Color = ColorSequence.new({
+        ColorSequenceKeypoint.new(0, ROW_BG),
+        ColorSequenceKeypoint.new(1, ROW_BG2),
+    })
+
     local stroke = Instance.new("UIStroke", row)
-    stroke.Color = Color3.fromRGB(70, 70, 95)
+    stroke.Color = Color3.fromRGB(64, 64, 88)
     stroke.Thickness = 1
-    stroke.Transparency = 0.4
+    stroke.Transparency = 0.45
 
     local label = Instance.new("TextLabel")
     label.BackgroundTransparency = 1
-    label.Position = UDim2.new(0, 10, 0, 2)
-    label.Size = UDim2.new(1, -60, 0, 16)
+    label.Position = UDim2.new(0, 12, 0, 3)
+    label.Size = UDim2.new(1, -70, 0, 16)
     label.Font = Enum.Font.Gotham
     label.Text = text
-    label.TextColor3 = Color3.fromRGB(200, 195, 225)
+    label.TextColor3 = Color3.fromRGB(210, 205, 235)
     label.TextSize = 12
     label.TextXAlignment = Enum.TextXAlignment.Left
     label.Parent = row
 
     local valueLbl = Instance.new("TextLabel")
     valueLbl.BackgroundTransparency = 1
-    valueLbl.Position = UDim2.new(1, -50, 0, 2)
-    valueLbl.Size = UDim2.new(0, 40, 0, 16)
+    valueLbl.Position = UDim2.new(1, -56, 0, 3)
+    valueLbl.Size = UDim2.new(0, 44, 0, 16)
     valueLbl.Font = Enum.Font.GothamBold
     valueLbl.Text = tostring(defaultV)
     valueLbl.TextColor3 = ACCENT2
@@ -377,9 +410,9 @@ local function make_slider(parent, text, minV, maxV, defaultV, on_change)
     valueLbl.Parent = row
 
     local track_ = Instance.new("Frame")
-    track_.Size = UDim2.new(1, -20, 0, 8)
-    track_.Position = UDim2.new(0, 10, 1, -16)
-    track_.BackgroundColor3 = Color3.fromRGB(36, 36, 46)
+    track_.Size = UDim2.new(1, -24, 0, 6)
+    track_.Position = UDim2.new(0, 12, 1, -18)
+    track_.BackgroundColor3 = Color3.fromRGB(38, 38, 48)
     track_.BorderSizePixel = 0
     track_.Parent = row
     Instance.new("UICorner", track_).CornerRadius = UDim.new(1, 0)
@@ -401,7 +434,7 @@ local function make_slider(parent, text, minV, maxV, defaultV, on_change)
     knob.Size = UDim2.new(0, 14, 0, 14)
     knob.AnchorPoint = Vector2.new(0.5, 0.5)
     knob.Position = UDim2.new((defaultV - minV) / (maxV - minV), 0, 0.5, 0)
-    knob.BackgroundColor3 = Color3.fromRGB(240, 240, 255)
+    knob.BackgroundColor3 = Color3.fromRGB(245, 240, 255)
     knob.BorderSizePixel = 0
     knob.Parent = track_
     Instance.new("UICorner", knob).CornerRadius = UDim.new(1, 0)
@@ -451,77 +484,73 @@ local function make_slider(parent, text, minV, maxV, defaultV, on_change)
 end
 
 -- ======================================================
--- BUILD PAGES
+-- BUILD PAGES + TABS
 -- ======================================================
-local pageMain = make_page("Main")
+local pageMain   = make_page("Main")
 local pageCombat = make_page("Combat")
 local pageVisual = make_page("Visual")
-local pageMisc = make_page("Misc")
+local pageMisc   = make_page("Misc")
 
 make_tab_button("Main", "Main")
-make_tab_button("Cmb", "Combat")
-make_tab_button("Vis", "Visual")
-make_tab_button("Msc", "Misc")
+make_tab_button("Cmb",  "Combat")
+make_tab_button("Vis",  "Visual")
+make_tab_button("Msc",  "Misc")
 
--- ---------------- MAIN PAGE ----------------
-local ws_slider
+-- ---------------- MAIN ----------------
+make_section(pageMain, "Movement")
+
 make_toggle(pageMain, "WalkSpeed", "walkspeed",
     function()
-        local char = lp.Character
-        if char and char:FindFirstChildOfClass("Humanoid") then
-            char.Humanoid.WalkSpeed = values.walkspeed
+        local c = lp.Character
+        if c and c:FindFirstChildOfClass("Humanoid") then
+            c.Humanoid.WalkSpeed = values.walkspeed
         end
     end,
     function()
-        local char = lp.Character
-        if char and char:FindFirstChildOfClass("Humanoid") then
-            char.Humanoid.WalkSpeed = 16
+        local c = lp.Character
+        if c and c:FindFirstChildOfClass("Humanoid") then
+            c.Humanoid.WalkSpeed = 16
         end
     end
 )
-_, _ = nil, nil
-local wsRow, wsGet = make_slider(pageMain, "Speed Value", 16, 200, 32, function(v)
+make_slider(pageMain, "Speed Value", 16, 200, 32, function(v)
     values.walkspeed = v
     if state.walkspeed then
-        local char = lp.Character
-        if char and char:FindFirstChildOfClass("Humanoid") then
-            char.Humanoid.WalkSpeed = v
-        end
+        local c = lp.Character
+        if c and c:FindFirstChildOfClass("Humanoid") then c.Humanoid.WalkSpeed = v end
     end
 end)
 
 make_toggle(pageMain, "JumpPower", "jumppower",
     function()
-        local char = lp.Character
-        if char and char:FindFirstChildOfClass("Humanoid") then
-            char.Humanoid.UseJumpPower = true
-            char.Humanoid.JumpPower = values.jumppower
+        local c = lp.Character
+        if c and c:FindFirstChildOfClass("Humanoid") then
+            c.Humanoid.UseJumpPower = true
+            c.Humanoid.JumpPower = values.jumppower
         end
     end,
     function()
-        local char = lp.Character
-        if char and char:FindFirstChildOfClass("Humanoid") then
-            char.Humanoid.JumpPower = 50
-        end
+        local c = lp.Character
+        if c and c:FindFirstChildOfClass("Humanoid") then c.Humanoid.JumpPower = 50 end
     end
 )
-local jpRow = make_slider(pageMain, "Jump Value", 50, 300, 100, function(v)
+make_slider(pageMain, "Jump Value", 50, 300, 100, function(v)
     values.jumppower = v
     if state.jumppower then
-        local char = lp.Character
-        if char and char:FindFirstChildOfClass("Humanoid") then
-            char.Humanoid.JumpPower = v
-        end
+        local c = lp.Character
+        if c and c:FindFirstChildOfClass("Humanoid") then c.Humanoid.JumpPower = v end
     end
 end)
 
--- ---------------- COMBAT PAGE ----------------
+-- ---------------- COMBAT ----------------
+make_section(pageCombat, "Combat")
+
 make_toggle(pageCombat, "Infinite Jump", "infinite_jump",
     function()
         track("inf_jump", UserInputService.JumpRequest:Connect(function()
-            local char = lp.Character
-            if char and char:FindFirstChildOfClass("Humanoid") then
-                char.Humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
+            local c = lp.Character
+            if c and c:FindFirstChildOfClass("Humanoid") then
+                c.Humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
             end
         end))
     end,
@@ -530,55 +559,90 @@ make_toggle(pageCombat, "Infinite Jump", "infinite_jump",
     end
 )
 
-make_toggle(pageCombat, "Fly", "fly",
-    function()
-        local char = lp.Character
-        if not char then return end
-        local hrp = char:FindFirstChild("HumanoidRootPart")
-        local hum = char:FindFirstChildOfClass("Humanoid")
-        if not hrp or not hum then return end
+-- fly with R6 stance + collision off + collision restore
+local flyConn, flyVel, flyPos, flyGyro
 
-        local bv = Instance.new("BodyVelocity")
-        bv.Name = "MRTX_Fly"
-        bv.MaxForce = Vector3.new(1e5, 1e5, 1e5)
-        bv.Velocity = Vector3.zero
-        bv.Parent = hrp
+local function fly_enable()
+    local c = lp.Character
+    if not c then return end
+    local hrp = c:FindFirstChild("HumanoidRootPart")
+    local hum = c:FindFirstChildOfClass("Humanoid")
+    if not hrp or not hum then return end
 
-        track("fly", RunService.RenderStepped:Connect(function()
-            if not state.fly then return end
-            local cam = workspace.CurrentCamera
-            local dir = hum.MoveDirection
-            -- MoveDirection is already world-space.
-            -- camera-relative shaping only needed for vertical.
-            local move = dir * values.fly_speed
-            if UserInputService:IsKeyDown(Enum.KeyCode.Space) then
-                move = move + Vector3.new(0, values.fly_speed * 0.66, 0)
-            end
-            bv.Velocity = move
-        end))
+    -- collision off so we don't scrape the ground
+    for _, part in ipairs(c:GetDescendants()) do
+        if part:IsA("BasePart") then
+            part.CanCollide = false
+        end
+    end
 
-        task.spawn(function()
-            while state.fly and bv.Parent do task.wait(0.25) end
-            if bv then bv:Destroy() end
-        end)
-    end,
-    function()
-        local char = lp.Character
-        if char then
-            local hrp = char:FindFirstChild("HumanoidRootPart")
-            if hrp then
-                local bv = hrp:FindFirstChild("MRTX_Fly")
-                if bv then bv:Destroy() end
+    -- R6 stance: freeze animator mid-pose (standing idle)
+    hum.PlatformStand = true
+    hum:ChangeState(Enum.HumanoidStateType.Physics)
+
+    flyVel = Instance.new("BodyVelocity")
+    flyVel.Name = "MRTX_Fly_Vel"
+    flyVel.MaxForce = Vector3.new(1e5, 1e5, 1e5)
+    flyVel.Velocity = Vector3.zero
+    flyVel.Parent = hrp
+
+    -- keep upright, no spinning
+    flyGyro = Instance.new("BodyGyro")
+    flyGyro.Name = "MRTX_Fly_Gyro"
+    flyGyro.MaxTorque = Vector3.new(1e5, 1e5, 1e5)
+    flyGyro.P = 3000
+    flyGyro.D = 500
+    flyGyro.CFrame = hrp.CFrame
+    flyGyro.Parent = hrp
+
+    flyConn = RunService.RenderStepped:Connect(function()
+        if not state.fly or not flyVel or not flyVel.Parent then return end
+        local cam = workspace.CurrentCamera
+        local dir = hum.MoveDirection
+        local move = dir * values.fly_speed
+        if UserInputService:IsKeyDown(Enum.KeyCode.Space) then
+            move = move + Vector3.new(0, values.fly_speed * 0.75, 0)
+        end
+        if UserInputService:IsKeyDown(Enum.KeyCode.LeftControl)
+        or UserInputService:IsKeyDown(Enum.KeyCode.LeftShift) then
+            move = move - Vector3.new(0, values.fly_speed * 0.75, 0)
+        end
+        flyVel.Velocity = move
+        if flyGyro and flyGyro.Parent then
+            flyGyro.CFrame = CFrame.new(hrp.Position, hrp.Position + cam.CFrame.LookVector * Vector3.new(1,0,1))
+        end
+    end)
+end
+
+local function fly_disable()
+    if flyConn then flyConn:Disconnect() flyConn = nil end
+    if flyVel then flyVel:Destroy() flyVel = nil end
+    if flyGyro then flyGyro:Destroy() flyGyro = nil end
+
+    local c = lp.Character
+    if c then
+        local hum = c:FindFirstChildOfClass("Humanoid")
+        if hum then
+            hum.PlatformStand = false
+            pcall(function() hum:ChangeState(Enum.HumanoidStateType.Running) end)
+        end
+        for _, part in ipairs(c:GetDescendants()) do
+            if part:IsA("BasePart") and part.Name ~= "HumanoidRootPart" then
+                part.CanCollide = true
             end
         end
     end
-)
+end
+
+make_toggle(pageCombat, "Fly", "fly", fly_enable, fly_disable)
 
 make_slider(pageCombat, "Fly Speed", 20, 200, 60, function(v)
     values.fly_speed = v
 end)
 
--- ---------------- VISUAL PAGE ----------------
+-- ---------------- VISUAL ----------------
+make_section(pageVisual, "Visuals")
+
 local function apply_esp(plr)
     if plr == lp then return end
     if plr.Character and not highlights[plr] then
@@ -586,7 +650,7 @@ local function apply_esp(plr)
         hl.Name = "MRTX_ESP"
         hl.FillColor = ACCENT
         hl.OutlineColor = ACCENT2
-        hl.FillTransparency = 0.6
+        hl.FillTransparency = 0.55
         hl.OutlineTransparency = 0
         hl.Adornee = plr.Character
         hl.Parent = plr.Character
@@ -594,54 +658,59 @@ local function apply_esp(plr)
     end
 end
 
+local espConns = {}
+
 make_toggle(pageVisual, "ESP (Highlight)", "esp",
     function()
         for _, plr in ipairs(Players:GetPlayers()) do apply_esp(plr) end
-        track("esp_added", Players.PlayerAdded:Connect(function(plr)
+        table.insert(espConns, Players.PlayerAdded:Connect(function(plr)
             plr.CharacterAdded:Connect(function() task.wait(1); apply_esp(plr) end)
         end))
         for _, plr in ipairs(Players:GetPlayers()) do
             if plr ~= lp then
-                plr.CharacterAdded:Connect(function() task.wait(1); apply_esp(plr) end)
+                table.insert(espConns, plr.CharacterAdded:Connect(function()
+                    task.wait(1); apply_esp(plr)
+                end))
             end
         end
     end,
     function()
         for _, hl in pairs(highlights) do hl:Destroy() end
         highlights = {}
-        if conns["esp_added"] then conns["esp_added"]:Disconnect() end
+        for _, cn in ipairs(espConns) do pcall(function() cn:Disconnect() end) end
+        espConns = {}
     end
 )
 
--- ---------------- MISC PAGE ----------------
+-- ---------------- MISC ----------------
+make_section(pageMisc, "Miscellaneous")
+
+local noclipConn
+
 make_toggle(pageMisc, "Noclip", "noclip",
     function()
-        track("noclip", RunService.Stepped:Connect(function()
+        noclipConn = RunService.Stepped:Connect(function()
             if not state.noclip then return end
-            local char = lp.Character
-            if char then
-                for _, part in ipairs(char:GetDescendants()) do
-                    if part:IsA("BasePart") and part.CanCollide then
-                        part.CanCollide = false
-                    end
+            local c = lp.Character
+            if c then
+                for _, part in ipairs(c:GetDescendants()) do
+                    if part:IsA("BasePart") then part.CanCollide = false end
                 end
             end
-        end))
+        end)
     end,
     function()
-        if conns["noclip"] then conns["noclip"]:Disconnect() end
-        local char = lp.Character
-        if char then
-            for _, part in ipairs(char:GetDescendants()) do
-                if part:IsA("BasePart") then
-                    part.CanCollide = true
-                end
+        if noclipConn then noclipConn:Disconnect() noclipConn = nil end
+        if state.fly then return end -- don't fight fly
+        local c = lp.Character
+        if c then
+            for _, part in ipairs(c:GetDescendants()) do
+                if part:IsA("BasePart") then part.CanCollide = true end
             end
         end
     end
 )
 
--- activate first tab
 set_tab("Main")
 
 -- ======================================================
@@ -660,7 +729,7 @@ devLabel.Size = UDim2.new(0, 0, 0, 16)
 devLabel.AutomaticSize = Enum.AutomaticSize.X
 devLabel.Font = Enum.Font.Gotham
 devLabel.Text = "shenrukaidev • OWNER"
-devLabel.TextColor3 = Color3.fromRGB(170, 160, 200)
+devLabel.TextColor3 = Color3.fromRGB(175, 165, 205)
 devLabel.TextSize = 11
 devLabel.TextXAlignment = Enum.TextXAlignment.Left
 devLabel.Parent = devRow
@@ -668,8 +737,8 @@ devLabel.Parent = devRow
 local badge = Instance.new("Frame")
 badge.BackgroundColor3 = Color3.fromRGB(60, 120, 220)
 badge.BorderSizePixel = 0
-badge.Size = UDim2.new(0, 14, 0, 14)
-badge.Position = UDim2.new(0, 0, 0.5, -7)
+badge.Size = UDim2.new(0, 13, 0, 13)
+badge.Position = UDim2.new(0, 0, 0.5, -6.5)
 badge.Parent = devRow
 Instance.new("UICorner", badge).CornerRadius = UDim.new(1, 0)
 
@@ -695,7 +764,7 @@ check.TextSize = 9
 check.Parent = badge
 
 local function reposition_badge()
-    badge.Position = UDim2.new(0, devLabel.AbsoluteSize.X + 4, 0.5, -7)
+    badge.Position = UDim2.new(0, devLabel.AbsoluteSize.X + 4, 0.5, -6.5)
 end
 devLabel:GetPropertyChangedSignal("AbsoluteSize"):Connect(reposition_badge)
 task.defer(reposition_badge)
@@ -780,9 +849,6 @@ rStroke.Color = ACCENT
 rStroke.Thickness = 1.5
 rStroke.Transparency = 0.3
 
--- ======================================================
--- MINIMIZE / RESTORE
--- ======================================================
 local minimized = false
 
 local function minimize()
@@ -793,7 +859,7 @@ local function minimize()
     })
     t:Play(); t.Completed:Wait()
     main.Visible = false
-    main.Size = UDim2.new(0, 260, 0, 320)
+    main.Size = UDim2.new(0, 260, 0, 330)
 
     restore.Visible = true
     restore.Size = UDim2.new(0, 0, 0, 0)
@@ -815,7 +881,7 @@ local function restore_window()
     main.Visible = true
     main.Size = UDim2.new(0, 0, 0, 0)
     TweenService:Create(main, TweenInfo.new(0.22, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
-        Size = UDim2.new(0, 260, 0, 320),
+        Size = UDim2.new(0, 260, 0, 330),
     }):Play()
 end
 
